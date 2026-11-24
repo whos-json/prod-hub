@@ -44,7 +44,8 @@ BACKENDS = {
     "comfy": dict(
         port=8190, ready="/system_stats", cwd=COMFY,
         cmd=[str(COMFY / ".venv/Scripts/python.exe"), "main.py", "--port", "8190", "--disable-auto-launch",
-             "--extra-model-paths-config", str(ENGINE / "extra_model_paths.yaml")]),
+             "--extra-model-paths-config", str(ENGINE / "extra_model_paths.yaml"),
+             "--reserve-vram", "3"]),  # the iGPU shares RAM with Windows and other apps: keep 3 GB free for working memory, or big clips run out of resources
     "llm": dict(
         port=8081, ready="/health", cwd=ENGINE / "llama-server",
         cmd=[str(ENGINE / "llama-server/llama-server.exe"),
@@ -294,6 +295,25 @@ def ltx_workflow(prompt, w, h, frames, steps, seed, image=None):
     return wf
 
 
+LOW_MEM = 1_500_000_000  # bytes: below this much free RAM, start the next scene on a fresh ComfyUI
+
+
+async def run_comfy_safe(wf):
+    """run_comfy, but a ComfyUI that has run out of memory (its cached models live in the iGPU's shared RAM) is restarted and the scene retried once.
+    Caller holds `lock`."""
+    if psutil.virtual_memory().available < LOW_MEM:
+        await stop()
+        await ensure("comfy")
+    try:
+        return await run_comfy(wf)
+    except web.HTTPInternalServerError as e:
+        if not any(k in (e.text or "").lower() for k in ("memory", "out_of_resources", "out of resources")):  # CPU or Intel GPU memory exhausted
+            raise
+        await stop()
+        await ensure("comfy")
+        return await run_comfy(wf)
+
+
 async def drop_file(path):
     """Best-effort delete of a temporary file. Windows may still hold it for a moment after ComfyUI writes it; that must never fail a job."""
     for _ in range(10):
@@ -420,7 +440,7 @@ async def worker():
                         if j.get("cancel"):
                             raise Cancelled()
                         if names[k] is None:
-                            png, _ = await run_comfy(flux_workflow(j["stills"]["prompts"][k], fw, fh, 4, j["stills"]["seed"] + k))
+                            png, _ = await run_comfy_safe(flux_workflow(j["stills"]["prompts"][k], fw, fh, 4, j["stills"]["seed"] + k))
                             names[k] = await upload_image(png, f"gw_{jid}_s{k}.png")
                         j["done"] += 1
                 parts, ref = [], None
@@ -432,7 +452,7 @@ async def worker():
                         last = await loop.run_in_executor(None, media_edit.last_frame_png, parts[-1], ref)
                         nm = await upload_image(last, f"gw_{jid}_c{k}.png")
                         names.append(nm)
-                    data, _ = await run_comfy(j["build"](k, nm))
+                    data, _ = await run_comfy_safe(j["build"](k, nm))
                     parts.append(data)
                     if j["chain"] and k == 0:
                         ref = await loop.run_in_executor(None, lambda d=data: media_edit.stats(media_edit.decode(d)))

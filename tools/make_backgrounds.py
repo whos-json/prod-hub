@@ -11,14 +11,16 @@ TOKEN = (ROOT / "data" / "token.txt").read_text().strip()
 BASE = "http://127.0.0.1:8000"
 
 LIGHT = "soft natural window light"
-TAIL = ("photoreal photograph, shallow depth of field, calm composition with clear empty space in the lower third for text. "
-        "No text, no letters, no logos, no brand names, no people, no hands, no watermark.")
+# The model ignores "no people / no text", so each scene is described as something that cannot contain either:
+# empty rooms, unbranded objects, windows showing only foliage. The tail only repeats the rules.
+TAIL = ("photoreal photograph, shallow depth of field, calm composition with clear empty space in the lower third for text, "
+        "plain surfaces with nothing written on them. No text, no letters, no logos, no brand names, no people, no hands, no watermark.")
 SCENES = {
-    "cafe": "a small cafe interior with warm wooden furniture and an empty table in the foreground",
-    "pour": "a stream of coffee pouring from a steel pitcher into a clear glass on a cafe counter",
-    "shelf": "a tidy shop shelf with simple everyday goods in plain unlabelled packaging",
-    "workbench": "a clean wooden workbench with neatly arranged hand tools",
-    "studio": "an empty bright studio with a rolled yoga mat and a water bottle on a wooden floor",
+    "cafe": "an empty small cafe interior, nobody inside, wooden tables and chairs, a green plant, windows showing only blurred green foliage",
+    "pour": "a tall clear glass of iced coffee with milk swirls and ice cubes standing alone on an empty cafe counter, close view",
+    "shelf": "a tidy wooden shelf with folded linen towels, plain ceramic bowls and small green plants, unbranded, nobody around",
+    "workbench": "an empty workshop with a clean wooden workbench and neatly arranged hand tools, nobody inside",
+    "studio": "an empty bright yoga studio with a single rolled mat on a wooden floor, plain walls, nobody inside",
 }
 SHAPES = {"45": (896, 1120, 1080, 1350), "916": (720, 1280, 1080, 1920)}
 JOBS = [(s, 1) for s in SCENES] + [("cafe", 2)]  # 5 scenes + a second cafe variant = 6 pictures x 2 shapes = 12
