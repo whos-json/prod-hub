@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local gateway · Suncatcher</title>
+<link rel="icon" href="/brand/suncatcher-mark-small.svg">
+<style>
+@font-face{font-family:"Plus Jakarta Sans";font-weight:600;font-display:swap;src:url(/fonts/plus-jakarta-sans-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-weight:700;font-display:swap;src:url(/fonts/plus-jakarta-sans-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format("woff2")}
+/* Suncatcher brand kit: white + Mist base, violet leads, coral and amber are small sparks (never as text on light) */
+:root{--violet-50:#efecfe;--violet-300:#a99cff;--violet-500:#5b45e0;--violet-700:#4330b8;--coral-50:#ffeee9;--coral-700:#c93d20;
+--amber-50:#fff6e3;--amber-800:#8a5a00;--ink:#17152a;--slate:#5d5a6e;--line:#e6e3ee;--mist:#f4f2f8;
+--display:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--body:"Inter",ui-sans-serif,system-ui,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--mist);color:var(--ink);font:400 .9375rem/1.5rem var(--body)}
+h1,h2,p{margin:0}
+:focus-visible{outline:3px solid var(--violet-300);outline-offset:2px;border-radius:8px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header img{height:30px;display:block}.sp{flex:1}
+main{max-width:980px;margin:0 auto;padding:28px 24px 56px;display:grid;gap:20px}
+h1{font:700 1.75rem/1.15 var(--display);letter-spacing:-.03em}
+h2{font:600 1.125rem/1.3 var(--display);letter-spacing:-.015em;margin-bottom:14px}
+.sub{color:var(--slate);margin-top:2px}.mono{font-family:var(--mono);font-size:.8125rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}
+.tiles{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr))}
+.tile{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 20px;min-width:0}
+.tile span{display:block;color:var(--slate);font-size:.875rem}
+.tile b{display:block;font:700 1.75rem/1.2 var(--display);letter-spacing:-.03em;margin-top:6px;overflow-wrap:anywhere}
+.tile small{display:block;color:var(--slate);font-size:.8125rem;margin-top:2px}
+main>*{min-width:0}
+.chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;font:600 .875rem/1 var(--body);white-space:nowrap}
+.chip::before{content:"";width:8px;height:8px;border-radius:8px;background:currentColor}
+.chip.on{background:var(--violet-50);color:var(--violet-700)}
+.chip.idle{background:var(--mist);color:var(--slate)}.chip.idle::before{background:transparent;border:1.5px solid var(--slate);box-sizing:border-box}
+.chip.bad{background:var(--coral-50);color:#b8361b}
+.btn{height:40px;padding:0 16px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font:600 .9375rem/1 var(--body);cursor:pointer}
+.btn:hover{background:var(--mist)}.btn.primary{background:var(--violet-500);border-color:var(--violet-500);color:#fff}.btn.primary:hover{background:var(--violet-700)}
+.btn.danger{color:var(--coral-700)}.btn.danger:hover{background:var(--coral-50)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.code{flex:1;min-width:240px;background:var(--mist);border-radius:12px;padding:11px 14px;font-family:var(--mono);font-size:.8125rem;word-break:break-all}
+.env{margin-top:14px;background:var(--mist);border-radius:12px;padding:12px 14px;white-space:pre-wrap;word-break:break-all}
+.kv{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}.kv span:first-child{color:var(--slate)}.kv span:last-child{text-align:right;word-break:break-all}
+.meter{margin:12px 0 0}.meter div:first-child{display:flex;justify-content:space-between;color:var(--slate);font-size:.875rem}
+.meter .bar{height:10px;background:var(--mist);border-radius:99px;overflow:hidden;margin-top:6px}.meter .bar i{display:block;height:100%;background:var(--violet-500);border-radius:99px;transition:width .4s}
+table{width:100%;border-collapse:collapse;font-size:.875rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+th{color:var(--slate);font-weight:600}tr:last-child td{border:0}
+.s4{color:var(--amber-800);font-weight:600}.s5{color:var(--coral-700);font-weight:600}
+.empty{color:var(--slate)}
+.day{margin:18px 0 10px;color:var(--slate);font:600 .8125rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase}.day:first-child{margin-top:0}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.it{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.it a{display:block}.it img,.it video{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:var(--mist)}
+.it p{padding:10px 12px;font-size:.8125rem;line-height:1.25rem;color:var(--slate);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.it p b{display:block;color:var(--ink);font-weight:600}
+@media (max-width:560px){header,main{padding-left:16px;padding-right:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <img src="/brand/suncatcher-lockup.svg" alt="Suncatcher">
+  <span class="muted sub" style="margin:0">Local gateway</span>
+  <span class="sp"></span>
+  <span id="status" class="chip idle">Connecting</span>
+</header>
+<main>
+  <div><h1 id="hello">Your gateway</h1><p class="sub">Stats, your key and what's connected. Nothing to configure here.</p></div>
+
+  <section class="tiles" id="tiles" aria-label="Stats"></section>
+
+  <section class="card">
+    <h2>API key</h2>
+    <div class="row">
+      <code class="code" id="key"></code>
+      <button class="btn" id="show">Show</button>
+      <button class="btn primary" id="copykey">Copy key</button>
+      <button class="btn danger" id="regen">New key</button>
+      <span class="sub" id="copied" role="status"></span>
+    </div>
+    <p class="sub" style="margin-top:14px">Settings for your app on Render:</p>
+    <div class="env mono" id="env"></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="copyenv">Copy both lines</button></div>
+    <p class="sub" style="margin-top:14px">An app running on this laptop uses <span class="mono">http://127.0.0.1:8000</span> with the same key.</p>
+  </section>
+
+  <section class="card"><h2>Connection</h2><div id="conn"></div></section>
+  <section class="card"><h2>Load</h2><div id="load"></div></section>
+  <section class="card"><h2>Recent requests</h2><div style="overflow-x:auto"><table id="reqs"></table></div></section>
+  <section class="card"><h2>Generated files</h2><div id="lib"></div></section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const el=(t,a={},...k)=>{const e=document.createElement(t);for(const[x,v]of Object.entries(a))e.setAttribute(x,v);e.append(...k);return e};
+const api=(p,o)=>fetch(p,o).then(async r=>{if(!r.ok)throw new Error((await r.text()).slice(0,160));return r.json()});
+const mb=n=>n>=1024?(n/1024).toFixed(1)+' GB':n+' MB';
+const dur=s=>s>=3600?`${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`:s>=60?`${Math.floor(s/60)}m`:`${s}s`;
+let S=null,shown=false,libSig='';
+const h=new Date().getHours();$('#hello').textContent=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+
+const tile=(l,v,sub)=>el('div',{class:'tile'},el('span',{},l),el('b',{},v),...(sub?[el('small',{},sub)]:[]));
+const kv=(a,b)=>el('div',{class:'kv'},el('span',{},a),el('span',{},b));
+const meter=(l,u,t,txt)=>el('div',{class:'meter'},el('div',{},el('span',{},l),el('span',{},txt)),el('div',{class:'bar'},el('i',{style:`width:${t?Math.min(100,u/t*100):0}%`})));
+const keyText=()=>shown?S.token:'•'.repeat(48);
+
+function render(){
+  const st=$('#status');
+  [st.textContent,st.className]=S.running?[`Generating ${S.running}`,'chip on']:S.loaded?['Ready','chip on']:['Idle, no model loaded','chip idle'];
+  $('#tiles').replaceChildren(
+    tile('Model loaded',S.loaded==='comfy'?'Images and video':S.loaded==='llm'?'Text':'None'),
+    tile('In the queue',String(S.queue_length)),
+    tile('Generated',String(S.library.images+S.library.videos),`${S.library.images} images, ${S.library.videos} videos`),
+    tile('Running for',dur(S.uptime_s)));
+  $('#key').textContent=keyText();$('#show').textContent=shown?'Hide':'Show';
+  $('#env').textContent=`GATEWAY_URL=${S.tunnel.url||'(public address not ready yet)'}\nGATEWAY_TOKEN=${keyText()}`;
+  const t=S.tunnel;
+  $('#conn').replaceChildren(
+    kv('Public address',t.url||(t.installed?'Starting…':'Tunnel not installed')),
+    kv('Tunnel',t.running?'Running':'Off'),
+    kv('Your hosted app',t.push),
+    kv('On this laptop','http://'+S.listen.public),
+    kv('Seen calling in',[...new Set(S.requests.map(r=>r.ip))].join(', ')||'Nobody yet'));
+  $('#load').replaceChildren(
+    meter('Processor',S.system.cpu,100,S.system.cpu+'%'),
+    meter('Memory',S.system.ram_used_mb,S.system.ram_total_mb,`${mb(S.system.ram_used_mb)} of ${mb(S.system.ram_total_mb)}`),
+    ...(S.gpu?[meter('Graphics memory',S.gpu.total_mb-S.gpu.free_mb,S.gpu.total_mb,`${mb(S.gpu.total_mb-S.gpu.free_mb)} of ${mb(S.gpu.total_mb)}`)]:[]),
+    ...(S.loaded?[el('p',{class:'sub',style:'margin-top:12px'},`The model unloads after ${dur(S.idle_stop_s)} of no use.`)]:[]));
+  const rows=S.requests.slice(0,10);
+  $('#reqs').replaceChildren(el('tr',{},...['Time','From','Request','Result'].map(x=>el('th',{},x))),
+    ...(rows.length?rows.map(r=>el('tr',{},el('td',{},r.t),el('td',{},r.ip||''),el('td',{},`${r.method} ${r.path}`),el('td',{class:'s'+String(r.status)[0]},String(r.status)))):[el('tr',{},el('td',{class:'empty',colspan:'4'},'No requests yet.'))]));
+}
+async function lib(){
+  const items=await api('/api/library'),box=$('#lib');
+  if(!items.length){box.replaceChildren(el('p',{class:'empty'},'Nothing generated yet. Files are kept in the data/library folder.'));return}
+  const days={};items.slice(0,60).forEach(i=>(days[i.date]??=[]).push(i));
+  box.replaceChildren(...Object.entries(days).flatMap(([d,l])=>[el('div',{class:'day'},`${d} · ${l.length}`),
+    el('div',{class:'grid'},...l.map(i=>{const u=`/lib/${i.kind}/${i.date}/${i.file}`;
+      const m=i.kind==='video'?el('video',{src:u,muted:'',loop:'',playsinline:'',preload:'metadata','aria-label':i.prompt||'Video'}):el('img',{src:u,loading:'lazy',alt:i.prompt||'Image'});
+      if(i.kind==='video'){m.muted=true;m.onmouseenter=()=>m.play();m.onmouseleave=()=>m.pause()}
+      return el('div',{class:'it'},el('a',{href:u,target:'_blank',rel:'noopener'},m),el('p',{},el('b',{},`${i.kind==='video'?'Video':'Image'} · ${i.width}×${i.height}`),`${i.seconds||'?'} s · ${i.source||''}`))}))]));
+}
+async function poll(){
+  try{S=await api('/api/state');render();const sig=S.library.images+'/'+S.library.videos;if(sig!==libSig){libSig=sig;lib()}}
+  catch(e){const st=$('#status');st.textContent='Gateway not reachable';st.className='chip bad'}
+}
+$('#show').onclick=()=>{shown=!shown;render()};
+const copy=async(t,msg)=>{
+  let ok=false;
+  try{await navigator.clipboard.writeText(t);ok=true}catch{
+    const ta=el('textarea',{style:'position:fixed;left:-9999px;opacity:0','aria-hidden':'true'});ta.value=t;document.body.append(ta);ta.select();
+    try{ok=document.execCommand('copy')}catch{}ta.remove();  // older or restricted browsers
+  }
+  $('#copied').textContent=ok?msg:'Couldn\'t copy, select the text instead';
+  setTimeout(()=>$('#copied').textContent='',3000);
+};
+$('#copykey').onclick=()=>copy(S.token,'Key copied');
+$('#copyenv').onclick=()=>copy(`GATEWAY_URL=${S.tunnel.url||''}\nGATEWAY_TOKEN=${S.token}`,'Copied');
+$('#regen').onclick=async()=>{if(confirm('Make a new key? The current one stops working straight away, so update it on Render.')){await api('/api/token',{method:'POST'});shown=true;poll()}};
+poll();setInterval(poll,3000);
+</script>
+</body>
+</html>

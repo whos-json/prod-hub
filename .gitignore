@@ -1,0 +1,19 @@
+# Large, third-party or machine-specific: rebuilt by following README "Setup", never committed
+/engine/
+/models/
+/bin/
+
+# Runtime data and secrets (API key, tunnel credentials, generated content, logs)
+/data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Misc
+*.log
+.env
+.env.*
+.DS_Store
+Thumbs.db
